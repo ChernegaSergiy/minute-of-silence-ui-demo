@@ -29,29 +29,16 @@ Open `index.html` in Chrome or Edge, or enable GitHub Pages (Settings → Pages 
 | `tools/index.mock.html`, `tools/vite.mock.config.ts` | entry point and Vite config for the demo build |
 | `tools/build.py` | builds `index.html` from a clone of the app |
 | `tools/screenshot.py` | takes screenshots with Playwright |
-| `patch/test-button-pending-state.patch` | changes to `App.tsx` and the locales shown in the demo |
 | `screenshots/` | ready-made screenshots (light/dark theme, TEST/STOP, overlay) |
 
 ## Rebuilding
 
 ```bash
 git clone --branch feature/test-ceremony-stop https://github.com/ChernegaSergiy/minute-of-silence.git
-cd minute-of-silence && git apply ../minute-of-silence-ui-demo/patch/test-button-pending-state.patch && cd ..
 python3 minute-of-silence-ui-demo/tools/build.py minute-of-silence      # needs Node 20+ and npm
 pip install playwright && playwright install chromium
 python3 minute-of-silence-ui-demo/tools/screenshot.py                   # optional
 ```
-
-Without applying the patch, the page is built from the branch as it is.
-
-## About the patch
-
-The patch is **not part of** the app's branch. It adds:
-
-- `testPending`: protection against a repeated click before the test has started
-  (`trigger_ceremony_now` only resolves when the ceremony ends, so it must not be awaited);
-- `bundleIcon` for the Play/Stop icons and a `Tooltip` with the new keys `buttons.test_hint`
-  and `buttons.stop_hint` in `uk.json` and `en.json`.
 
 ## Limitations
 
