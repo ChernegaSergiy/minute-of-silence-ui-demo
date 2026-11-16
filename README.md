@@ -1,56 +1,59 @@
 # minute-of-silence-ui-demo
 
-Інтерактивна демо-сторінка налаштувань застосунку
-[«Хвилина мовчання»](https://github.com/ChernegaSergiy/minute-of-silence)
-(гілка `feature/test-ceremony-stop`) із кнопкою «ТЕСТ» / «СТОП».
+An interactive demo of the settings screen of
+[Minute of Silence](https://github.com/ChernegaSergiy/minute-of-silence)
+(branch `feature/test-ceremony-stop`) with the TEST / STOP button.
 
-Це **справжній фронтенд** застосунку (React 19 + Fluent UI), зібраний у браузері.
-Бекенд Tauri замінено моком, тому нічого не грає й нічого не зберігається.
+This is the app's **real frontend** (React 19 + Fluent UI) built to run in a browser.
+The Tauri backend is replaced with a mock, so nothing plays and nothing is saved.
 
-## Перегляд
+## Viewing
 
-Відкрийте `index.html` у Chrome/Edge або ввімкніть GitHub Pages (Settings → Pages → `main` / root).
+Open `index.html` in Chrome or Edge, or enable GitHub Pages (Settings → Pages → `main` / root).
 
-- Кнопка «ТЕСТ» запускає імітацію тестової церемонії (60 с) і перемикається на «СТОП».
-- Візуальний оверлей за замовчуванням вимкнено. Щоб побачити свічку з кільцем, увімкніть
-  перемикач оверлея в налаштуваннях і натисніть «ТЕСТ».
-- Кільце в оверлеї — APNG, який застосунок розкладає на кадри Rust-командою
-  `decode_apng_frames`. У моку її замінено на `ImageDecoder`, тому потрібен Chromium-браузер.
+- The TEST button starts a simulated test ceremony (60 s) and switches to STOP.
+- The visual overlay is off by default. To see the candle with the progress ring, turn on
+  the overlay switch in the settings and press TEST.
+- The ring in the overlay is an APNG that the app splits into frames with the Rust command
+  `decode_apng_frames`. The mock replaces it with `ImageDecoder`, so a Chromium-based
+  browser is required.
+- The UI is in Ukrainian, so the buttons read «ТЕСТ» / «СТОП». The app picks the language
+  from the browser locale.
 
-## Структура
+## Structure
 
-| Шлях | Призначення |
+| Path | Purpose |
 | --- | --- |
-| `index.html` | зібрана самодостатня сторінка (JS, CSS, мок і PNG вбудовані) |
-| `tools/mock-tauri.js` | мок `window.__TAURI_INTERNALS__` (команди, події, `decode_apng_frames`) |
-| `tools/index.mock.html`, `tools/vite.mock.config.ts` | вхід і конфіг Vite для демо-збірки |
-| `tools/build.py` | збирає `index.html` із клону застосунку |
-| `tools/screenshot.py` | робить скриншоти через Playwright |
-| `patch/test-button-pending-state.patch` | зміни до `App.tsx` і локалей, показані на демо |
-| `screenshots/` | готові знімки (світла/темна тема, ТЕСТ/СТОП, оверлей) |
+| `index.html` | the built self-contained page (JS, CSS, mock and PNGs inlined) |
+| `tools/mock-tauri.js` | mock of `window.__TAURI_INTERNALS__` (commands, events, `decode_apng_frames`) |
+| `tools/index.mock.html`, `tools/vite.mock.config.ts` | entry point and Vite config for the demo build |
+| `tools/build.py` | builds `index.html` from a clone of the app |
+| `tools/screenshot.py` | takes screenshots with Playwright |
+| `patch/test-button-pending-state.patch` | changes to `App.tsx` and the locales shown in the demo |
+| `screenshots/` | ready-made screenshots (light/dark theme, TEST/STOP, overlay) |
 
-## Як перебудувати
+## Rebuilding
 
 ```bash
 git clone --branch feature/test-ceremony-stop https://github.com/ChernegaSergiy/minute-of-silence.git
 cd minute-of-silence && git apply ../minute-of-silence-ui-demo/patch/test-button-pending-state.patch && cd ..
-python3 minute-of-silence-ui-demo/tools/build.py minute-of-silence      # потрібні Node 20+ і npm
+python3 minute-of-silence-ui-demo/tools/build.py minute-of-silence      # needs Node 20+ and npm
 pip install playwright && playwright install chromium
-python3 minute-of-silence-ui-demo/tools/screenshot.py                   # необов'язково
+python3 minute-of-silence-ui-demo/tools/screenshot.py                   # optional
 ```
 
-Без застосування патча збереться стан гілки як є.
+Without applying the patch, the page is built from the branch as it is.
 
-## Про патч
+## About the patch
 
-Патч **не входить** до гілки застосунку. Він додає:
+The patch is **not part of** the app's branch. It adds:
 
-- `testPending`: захист від повторного кліку, поки тест ще не стартував
-  (`trigger_ceremony_now` завершується лише після церемонії, тож `await` на нього не можна);
-- `bundleIcon` для іконок Play/Stop та `Tooltip` з новими ключами `buttons.test_hint` і
-  `buttons.stop_hint` у `uk.json` та `en.json`.
+- `testPending`: protection against a repeated click before the test has started
+  (`trigger_ceremony_now` only resolves when the ceremony ends, so it must not be awaited);
+- `bundleIcon` for the Play/Stop icons and a `Tooltip` with the new keys `buttons.test_hint`
+  and `buttons.stop_hint` in `uk.json` and `en.json`.
 
-## Обмеження
+## Limitations
 
-Це не знімок реального вікна Tauri: шрифти (Segoe UI Variable), рамка вікна й поведінка
-системи можуть відрізнятися. Ліцензія застосунку: див. основний репозиторій.
+This is not a screenshot of the real Tauri window: fonts (Segoe UI Variable), the window frame
+and system behavior may differ. For the app's license, see the main repository.
