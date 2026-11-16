@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""Збирає самодостатню демо-сторінку з клону minute-of-silence.
+"""Builds a self-contained demo page from a clone of minute-of-silence.
 
-Використання:
-    python3 tools/build.py /шлях/до/minute-of-silence [-o index.html]
+Usage:
+    python3 tools/build.py /path/to/minute-of-silence [-o index.html]
 
-Що робить:
-  1. копіює мок Tauri та конфіг Vite у клон застосунку;
-  2. збирає справжній фронтенд (React + Fluent UI) через `vite build`;
-  3. вбудовує JS, CSS, мок і PNG (як data: URI) в один index.html.
+What it does:
+  1. copies the Tauri mock and the Vite config into the app clone;
+  2. builds the real frontend (React + Fluent UI) with `vite build`;
+  3. inlines the JS, CSS, mock and PNGs (as data: URIs) into a single index.html.
 """
 import argparse, base64, glob, re, shutil, subprocess
 from pathlib import Path
@@ -23,7 +23,7 @@ PNGS = {
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("app", type=Path, help="шлях до клону minute-of-silence")
+    ap.add_argument("app", type=Path, help="path to the minute-of-silence clone")
     ap.add_argument("-o", "--out", type=Path, default=ROOT.parent / "index.html")
     args = ap.parse_args()
     app = args.app.resolve()
@@ -37,7 +37,7 @@ def main() -> None:
     dist = app / "dist-mock"
     html = (dist / "index.mock.html").read_text(encoding="utf-8")
     js = Path(glob.glob(str(dist / "assets/*.js"))[0]).read_text(encoding="utf-8")
-    # </script усередині рядка закрив би тег; U+FFFD не приймає публікація артефактів
+    # a </script inside a string would close the tag; artifact publishing rejects U+FFFD
     js = js.replace("</script", "<\\/script").replace("\ufffd", "\\uFFFD")
     css = Path(glob.glob(str(dist / "assets/*.css"))[0]).read_text(encoding="utf-8")
     mock = (app / "mock-tauri.js").read_text(encoding="utf-8")
@@ -53,7 +53,7 @@ def main() -> None:
         html = re.sub(r"([\"'`])" + re.escape(url) + r"\1", lambda m: m.group(1) + uri + m.group(1), html)
 
     args.out.write_text(html, encoding="utf-8")
-    print(f"OK: {args.out} ({args.out.stat().st_size / 1e6:.2f} МБ)")
+    print(f"OK: {args.out} ({args.out.stat().st_size / 1e6:.2f} MB)")
 
 
 if __name__ == "__main__":
