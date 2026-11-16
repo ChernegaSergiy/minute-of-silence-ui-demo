@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Робить скриншоти демо-сторінки (потрібен `pip install playwright` + `playwright install chromium`).
+"""Takes screenshots of the demo page (requires `pip install playwright` + `playwright install chromium`).
 
-    python3 tools/screenshot.py [index.html] [папка_виводу]
+    python3 tools/screenshot.py [index.html] [output_dir]
 
-Знімки: ТЕСТ / СТОП у світлій і темній темі та оверлей із кільцем (~18 с після старту).
+Shots: TEST / STOP in light and dark themes, and the overlay with the ring (~18 s after start).
 """
 import sys
 from pathlib import Path
@@ -19,7 +19,7 @@ with sync_playwright() as p:
     browser = p.chromium.launch()
 
     def new_page(scheme: str):
-        # uk-UA потрібен, щоб підписи були українськими (ТЕСТ / СТОП)
+        # uk-UA is required so the labels are in Ukrainian (ТЕСТ / СТОП)
         ctx = browser.new_context(viewport={"width": 900, "height": 720}, color_scheme=scheme, locale="uk-UA")
         pg = ctx.new_page()
         pg.goto(url)
@@ -37,7 +37,7 @@ with sync_playwright() as p:
         pg.screenshot(path=out / f"stop-{scheme}.png")
 
     pg = new_page("light")
-    pg.locator("#overlayToggle").check()  # у моку оверлей вимкнено за замовчуванням
+    pg.locator("#overlayToggle").check()  # the overlay is off by default in the mock
     pg.get_by_role("button", name="ТЕСТ").click()
     pg.wait_for_timeout(18000)
     pg.screenshot(path=out / "overlay.png")
